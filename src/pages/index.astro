@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import SchoolCard from '../components/SchoolCard.astro';
+import { schools } from '../data/schools';
+
+const featured = schools.slice(0, 4);
+const stats = [
+  { label: '收录学校', value: schools.length + '所' },
+  { label: '覆盖区域', value: [...new Set(schools.map(s => s.district))].length + '个区' },
+  { label: '学校类型', value: [...new Set(schools.map(s => s.type))].length + '种' },
+  { label: '数据更新', value: '2025年' },
+];
+---
+
+<BaseLayout title="首页">
+  <HeroSection />
+
+  <!-- 统计 Banner -->
+  <section class="bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {stats.map((s) => (
+        <div>
+          <p class="text-3xl font-extrabold text-[#C8102E]">{s.value}</p>
+          <p class="text-sm text-gray-500 mt-1">{s.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 精选学校 -->
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">精选学校</h2>
+      <a href="/schools" class="text-[#C8102E] text-sm font-medium hover:underline">
+        查看全部 →
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {featured.map((school) => (
+        <SchoolCard school={school} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

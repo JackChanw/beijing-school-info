@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { schools } from '../../data/schools';
+import type { School } from '../../types/school';
+
+export function getStaticPaths() {
+  return schools.map((school) => ({
+    params: { slug: school.slug },
+    props: { school },
+  }));
+}
+
+interface Props {
+  school: School;
+}
+
+const { school } = Astro.props;
+
+const typeColors: Record<string, string> = {
+  '小学': 'bg-green-100 text-green-800',
+  '初中': 'bg-blue-100 text-blue-800',
+  '高中': 'bg-purple-100 text-purple-800',
+  '九年一贯制': 'bg-teal-100 text-teal-800',
+  '完全中学': 'bg-orange-100 text-orange-800',
+  '十二年一贯制': 'bg-pink-100 text-pink-800',
+};
+
+const tagColor = typeColors[school.type] ?? 'bg-gray-100 text-gray-800';
+---
+
+<BaseLayout title={school.name} description={school.description}>
+  <!-- 面包屑 -->
+  <div class="max-w-4xl mx-auto px-4 pt-6 text-sm text-gray-500">
+    <a href="/" class="hover:text-[#C8102E]">首页</a>
+    <span class="mx-2">/</span>
+    <a href="/schools" class="hover:text-[#C8102E]">学校列表</a>
+    <span class="mx-2">/</span>
+    <span class="text-gray-800">{school.name}</span>
+  </div>
+
+  <!-- 学校信息 -->
+  <article class="max-w-4xl mx-auto px-4 py-8">
+    <!-- 标题区 -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6">
+      <div class="flex flex-wrap items-start gap-4 mb-4">
+        <h1 class="text-3xl font-extrabold text-gray-900 flex-1">{school.name}</h1>
+        <span class={`text-sm font-medium px-3 py-1 rounded-full ${tagColor}`}>
+          {school.type}
+        </span>
+      </div>
+      <p class="text-gray-600 text-base leading-relaxed">{school.description}</p>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">基本信息</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex gap-3">
+            <dt class="text-gray-500 w-16 shrink-0">所在区</dt>
+            <dd class="text-gray-800 font-medium">{school.district}</dd>
+          </div>
+          <div class="flex gap-3">
+            <dt class="text-gray-500 w-16 shrink-0">学校类型</dt>
+            <dd class="text-gray-800">{school.type}</dd>
+          </div>
+          <div class="flex gap-3">
+            <dt class="text-gray-500 w-16 shrink-0">创建年份</dt>
+            <dd class="text-gray-800">{school.founded} 年</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">联系方式</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex gap-3">
+            <dt class="text-gray-500 w-16 shrink-0">地址</dt>
+            <dd class="text-gray-800">{school.address}</dd>
+          </div>
+          <div class="flex gap-3">
+            <dt class="text-gray-500 w-16 shrink-0">电话</dt>
+            <dd class="text-gray-800">{school.phone}</dd>
+          </div>
+          {school.website && (
+            <div class="flex gap-3">
+              <dt class="text-gray-500 w-16 shrink-0">官网</dt>
+              <dd>
+                <a
+                  href={school.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[#C8102E] hover:underline break-all"
+                >
+                  {school.website}
+                </a>
+              </dd>
+            </div>
+          )}
+        </dl>
+      </div>
+    </div>
+
+    <!-- 学校亮点 -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-6">
+      <h2 class="text-lg font-bold text-gray-800 mb-4">学校亮点</h2>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {school.highlights.map((h) => (
+          <li class="flex items-center gap-2 text-sm text-gray-700">
+            <span class="w-2 h-2 rounded-full bg-[#C8102E] shrink-0"></span>
+            {h}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="text-center">
+      <a
+        href="/schools"
+        class="inline-block border border-[#C8102E] text-[#C8102E] px-6 py-2 rounded-full text-sm font-medium hover:bg-[#C8102E] hover:text-white transition-colors"
+      >
+        ← 返回学校列表
+      </a>
+    </div>
+  </article>
+</BaseLayout>
