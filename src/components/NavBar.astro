@@ -2,24 +2,25 @@
 ---
 <nav class="bg-[#C8102E] text-white shadow-md">
   <div class="max-w-6xl mx-auto px-4">
-    <!-- 桌面导航 -->
     <div class="flex items-center justify-between h-16">
       <a href="/" class="text-xl font-bold tracking-wide hover:opacity-90 transition-opacity">
-        🏫 北京学校信息
+        北京幼升小政策
       </a>
       <!-- 桌面菜单 -->
       <ul class="hidden md:flex gap-6 text-sm font-medium">
         <li><a href="/" class="hover:opacity-80 transition-opacity py-2">首页</a></li>
-        <li><a href="/schools" class="hover:opacity-80 transition-opacity py-2">学校列表</a></li>
+        <li><a href="/changping" class="hover:opacity-80 transition-opacity py-2">昌平区</a></li>
+        <li><a href="/haidian" class="hover:opacity-80 transition-opacity py-2">海淀区</a></li>
       </ul>
-      <!-- 移动端折叠菜单（零JS，使用 details/summary） -->
+      <!-- 移动端折叠菜单（零JS） -->
       <details class="md:hidden relative">
         <summary class="cursor-pointer list-none p-2 rounded hover:bg-red-700 transition-colors select-none">
           <span class="text-xl">☰</span>
         </summary>
-        <div class="absolute right-0 top-full mt-1 w-40 bg-white text-gray-800 rounded shadow-lg overflow-hidden z-50">
-          <a href="/" class="block px-4 py-3 hover:bg-gray-100 transition-colors text-sm font-medium border-b border-gray-100">首页</a>
-          <a href="/schools" class="block px-4 py-3 hover:bg-gray-100 transition-colors text-sm font-medium">学校列表</a>
+        <div class="absolute right-0 top-full mt-1 w-44 bg-white text-gray-800 rounded shadow-lg overflow-hidden z-50">
+          <a href="/" class="block px-4 py-3 hover:bg-gray-100 text-sm font-medium border-b border-gray-100">首页</a>
+          <a href="/changping" class="block px-4 py-3 hover:bg-gray-100 text-sm font-medium border-b border-gray-100">昌平区</a>
+          <a href="/haidian" class="block px-4 py-3 hover:bg-gray-100 text-sm font-medium">海淀区</a>
         </div>
       </details>
     </div>

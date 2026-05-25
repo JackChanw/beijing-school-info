@@ -1,45 +1,78 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroSection from '../components/HeroSection.astro';
-import SchoolCard from '../components/SchoolCard.astro';
-import { schools } from '../data/schools';
 
-const featured = schools.slice(0, 4);
-const stats = [
-  { label: '收录学校', value: schools.length + '所' },
-  { label: '覆盖区域', value: [...new Set(schools.map(s => s.district))].length + '个区' },
-  { label: '学校类型', value: [...new Set(schools.map(s => s.type))].length + '种' },
-  { label: '数据更新', value: '2025年' },
+const districts = [
+  {
+    name: '昌平区',
+    href: '/changping',
+    desc: '含回龙观、天通苑、科技城等片区，2026年政策已发布',
+    color: 'border-[#C8102E]',
+    badge: '2026年政策已发布',
+  },
+  {
+    name: '海淀区',
+    href: '/haidian',
+    desc: '含中关村、上地、西二旗等片区，2026年政策已发布',
+    color: 'border-blue-600',
+    badge: '2026年政策已发布',
+  },
+];
+
+const groups = [
+  { label: '北京户籍', color: 'bg-red-100 text-red-800', desc: '就近免试入学' },
+  { label: '工作居住证', color: 'bg-purple-100 text-purple-800', desc: '按京籍对待' },
+  { label: '居住证（非京籍）', color: 'bg-blue-100 text-blue-800', desc: '需通过联合审核' },
+  { label: '无居住证', color: 'bg-gray-100 text-gray-700', desc: '由教委统筹安置' },
 ];
 ---
 
-<BaseLayout title="首页">
-  <HeroSection />
+<BaseLayout title="首页" description="昌平区、海淀区2026年幼升小政策解读，按户籍类型分类展示入学条件与材料清单。">
+  <!-- Hero -->
+  <section class="bg-[#C8102E] text-white py-16 px-4">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-3">北京幼升小政策查询</h1>
+      <p class="text-red-100 text-base md:text-lg mb-2">昌平区 · 海淀区 · 2026年最新政策</p>
+      <p class="text-red-200 text-sm">按户籍类型查看入学条件、材料清单与时间节点</p>
+    </div>
+  </section>
 
-  <!-- 统计 Banner -->
-  <section class="bg-white border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      {stats.map((s) => (
-        <div>
-          <p class="text-3xl font-extrabold text-[#C8102E]">{s.value}</p>
-          <p class="text-sm text-gray-500 mt-1">{s.label}</p>
+  <!-- 选区入口 -->
+  <section class="max-w-3xl mx-auto px-4 py-10">
+    <h2 class="text-lg font-bold text-gray-700 mb-5 text-center">选择你所在的区</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      {districts.map(d => (
+        <a href={d.href}
+           class={`block bg-white rounded-2xl border-2 ${d.color} p-6 hover:shadow-md transition-shadow`}>
+          <div class="flex items-start justify-between mb-2">
+            <h3 class="text-xl font-extrabold text-gray-900">{d.name}</h3>
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">{d.badge}</span>
+          </div>
+          <p class="text-sm text-gray-500">{d.desc}</p>
+          <p class="mt-4 text-sm font-medium text-[#C8102E]">查看政策详情 →</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- 人群分类说明 -->
+  <section class="max-w-3xl mx-auto px-4 pb-12">
+    <h2 class="text-lg font-bold text-gray-700 mb-5 text-center">四类入学人群</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {groups.map((g, i) => (
+        <div class="bg-white rounded-xl border border-gray-100 p-4 text-center">
+          <span class="text-sm font-bold text-gray-500 mb-2 block">第{['一','二','三','四'][i]}类</span>
+          <span class={`inline-block text-xs font-medium px-2 py-1 rounded-full mb-2 ${g.color}`}>{g.label}</span>
+          <p class="text-xs text-gray-500">{g.desc}</p>
         </div>
       ))}
     </div>
   </section>
 
-  <!-- 精选学校 -->
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-2xl font-bold text-gray-900">精选学校</h2>
-      <a href="/schools" class="text-[#C8102E] text-sm font-medium hover:underline">
-        查看全部 →
-      </a>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {featured.map((school) => (
-        <SchoolCard school={school} />
-      ))}
+  <!-- 免责声明 -->
+  <section class="max-w-3xl mx-auto px-4 pb-10">
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+      <strong>数据来源说明：</strong>本站内容整理自昌平区教育委员会（2026年4月29日发布）及海淀区教育委员会（2026年4月28日发布）官方文件，仅供参考。政策如有变动，以官方最新公告为准。
+      <span class="block mt-1">昌平区咨询电话：69708814 &nbsp;|&nbsp; 海淀区咨询电话：62819952</span>
     </div>
   </section>
 </BaseLayout>

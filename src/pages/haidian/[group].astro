@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { haidianGroups } from '../../data/haidian';
+
+export function getStaticPaths() {
+  return haidianGroups.map(g => ({
+    params: { group: g.slug },
+    props: { group: g },
+  }));
+}
+
+const { group } = Astro.props;
+---
+
+<BaseLayout title={`海淀区 · ${group.label}`} description={`海淀区2026年幼升小${group.label}入学条件、材料清单与时间节点详解。`}>
+  <!-- 页头 -->
+  <section class="bg-blue-700 text-white py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-blue-200 text-sm mb-1">
+        <a href="/" class="hover:underline">首页</a> /
+        <a href="/haidian" class="hover:underline">海淀区</a> /
+        {group.label}
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="text-2xl font-extrabold">海淀区 · {group.label}</h1>
+        <span class="text-sm font-medium px-3 py-1 rounded-full bg-white/20">{group.priorityLabel}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
+
+    <!-- 入学条件 -->
+    <section>
+      <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <span class="w-1 h-5 bg-blue-600 rounded-full"></span>
+        入学条件
+      </h2>
+      <div class="space-y-4">
+        {group.conditions.map(c => (
+          <div class="bg-white rounded-xl border border-gray-100 p-5">
+            <h3 class="text-sm font-bold text-gray-700 mb-3">{c.title}</h3>
+            <ul class="space-y-2">
+              {c.items.map(item => (
+                <li class="flex items-start gap-2 text-sm text-gray-700">
+                  <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 材料清单 -->
+    <section>
+      <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <span class="w-1 h-5 bg-blue-600 rounded-full"></span>
+        材料清单
+      </h2>
+      <div class="space-y-4">
+        {group.materialGroups.map((groupTitle, gi) => (
+          <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <div class="bg-gray-50 px-5 py-3 border-b border-gray-100">
+              <h3 class="text-sm font-bold text-gray-700">{groupTitle}</h3>
+            </div>
+            <ul class="divide-y divide-gray-50">
+              {group.materials[gi]?.map(m => (
+                <li class="px-5 py-3 flex items-start gap-3">
+                  <span class={`mt-0.5 shrink-0 text-xs font-medium px-1.5 py-0.5 rounded ${m.required ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {m.required ? '必须' : '备用'}
+                  </span>
+                  <div>
+                    <p class="text-sm text-gray-800">{m.name}</p>
+                    {m.detail && <p class="text-xs text-gray-400 mt-0.5">{m.detail}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 注意事项 -->
+    {group.notes.length > 0 && (
+      <section>
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span class="w-1 h-5 bg-blue-600 rounded-full"></span>
+          注意事项
+        </h2>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <ul class="space-y-2">
+            {group.notes.map(note => (
+              <li class="flex items-start gap-2 text-sm text-amber-900">
+                <span class="shrink-0 mt-0.5">⚠️</span>
+                {note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    <!-- 关键时间 -->
+    {group.keyDates && group.keyDates.length > 0 && (
+      <section>
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span class="w-1 h-5 bg-blue-600 rounded-full"></span>
+          关键时间节点
+        </h2>
+        <div class="bg-white rounded-xl border border-gray-100 p-5">
+          <ul class="space-y-2">
+            {group.keyDates.map(d => (
+              <li class="flex items-start gap-2 text-sm text-gray-700">
+                <span class="shrink-0 text-blue-600">📅</span>
+                {d}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    <!-- 返回 -->
+    <div class="flex gap-3">
+      <a href="/haidian"
+         class="inline-block border border-blue-600 text-blue-600 px-5 py-2 rounded-full text-sm font-medium hover:bg-blue-600 hover:text-white transition-colors">
+        ← 返回海淀区
+      </a>
+      <a href="/"
+         class="inline-block border border-gray-300 text-gray-600 px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors">
+        回首页
+      </a>
+    </div>
+  </div>
+</BaseLayout>

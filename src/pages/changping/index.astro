@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { changpingGroups } from '../../data/changping';
+
+const district = '昌平区';
+---
+
+<BaseLayout title="昌平区幼升小政策" description="昌平区2026年幼升小入学政策，按北京户籍、工作居住证、居住证、无证件分类展示入学条件和材料清单。">
+  <!-- 页头 -->
+  <section class="bg-[#C8102E] text-white py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+      <p class="text-red-200 text-sm mb-1"><a href="/" class="hover:underline">首页</a> / 昌平区</p>
+      <h1 class="text-2xl md:text-3xl font-extrabold mb-2">昌平区 2026 年幼升小政策</h1>
+      <p class="text-red-100 text-sm">来源：昌平区教育委员会，2026年4月29日发布 · 现行有效</p>
+    </div>
+  </section>
+
+  <!-- 关键时间轴 -->
+  <section class="max-w-4xl mx-auto px-4 py-8">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">报名时间节点</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-left">
+            <th class="px-4 py-2 font-semibold text-gray-700 rounded-tl-lg">时间</th>
+            <th class="px-4 py-2 font-semibold text-gray-700 rounded-tr-lg">事项</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {[
+            ['5月1日起', '开通义务教育入学服务平台（yjrx.bjedu.cn）'],
+            ['5月6日—31日', '小学和初中入学信息采集'],
+            ['5月7日—15日', '按本市户籍对待儿童、非京籍儿童：到镇政府/街道办初审'],
+            ['5月8日—20日', '镇政府将材料报送区联合复审小组'],
+            ['6月3日前', '查询审核结果；领取《在京就读证明》'],
+            ['6月5日—8日', '民办小学、公办寄宿小学报名'],
+            ['6月11日前', '民办/公办寄宿学校派位录取'],
+            ['6月14日', '各小学审核入学相关材料'],
+            ['6月28日—29日', '取得《在京就读证明（公办）》的填报区域派位志愿'],
+            ['7月上旬', '发放新生入学通知书'],
+          ].map(([time, event]) => (
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{time}</td>
+              <td class="px-4 py-2.5 text-gray-800">{event}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-xs text-gray-400 mt-2">咨询电话：69708814（工作日 8:30—11:30，13:30—17:00）</p>
+  </section>
+
+  <!-- 人群选择卡片 -->
+  <section class="max-w-4xl mx-auto px-4 pb-10">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">选择你的户籍类型，查看专属政策</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {changpingGroups.map(g => (
+        <a href={`/changping/${g.slug}`}
+           class="block bg-white rounded-xl border border-gray-100 hover:border-[#C8102E]/30 hover:shadow-md transition-all p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class={`text-xs font-medium px-2 py-1 rounded-full ${g.tagColor}`}>{g.label}</span>
+            <span class="text-xs text-gray-400">优先级 {g.priority}</span>
+          </div>
+          <p class="text-sm font-semibold text-gray-800 mb-1">{g.priorityLabel}</p>
+          <p class="text-xs text-gray-500">{g.conditions[0]?.items[0]}</p>
+          <p class="mt-3 text-xs text-[#C8102E] font-medium">查看条件与材料清单 →</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
