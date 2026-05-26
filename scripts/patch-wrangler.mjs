@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * 构建后修复 dist/server/wrangler.json 中的 ASSETS binding 名称冲突
- * @astrojs/cloudflare 生成的 ASSETS 是 Pages 保留名，需要改掉
+ * 构建后修复 dist/server/wrangler.json：
+ * 1. ASSETS binding 名称冲突 → 改为 CF_ASSETS
+ * 2. 移除 queues.consumers（主 Worker 没有 queue handler，消费者由单独 Worker 处理）
  */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 
@@ -16,8 +17,12 @@ const config = JSON.parse(readFileSync(path, 'utf-8'));
 
 if (config.assets?.binding === 'ASSETS') {
   config.assets.binding = 'CF_ASSETS';
-  writeFileSync(path, JSON.stringify(config));
   console.log('✅ Patched ASSETS binding → CF_ASSETS');
-} else {
-  console.log('No patch needed');
 }
+
+if (config.queues?.consumers?.length) {
+  delete config.queues.consumers;
+  console.log('✅ Removed queues.consumers from main Worker config');
+}
+
+writeFileSync(path, JSON.stringify(config));
