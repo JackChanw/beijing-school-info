@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+export const prerender = false;
+
+// 服务端渲染第一页帖子
+const env = (Astro.locals as any).runtime?.env;
+let initialPosts: any[] = [];
+let totalPages = 1;
+
+if (env?.DB) {
+  const result = await env.DB.prepare(
+    `SELECT p.id, p.title, p.district, p.status, p.created_at,
+            SUBSTR(r.content, 1, 120) as reply_preview
+     FROM posts p
+     LEFT JOIN replies r ON r.post_id = p.id
+     ORDER BY p.created_at DESC
+     LIMIT 20`
+  ).all();
+  initialPosts = result.results || [];
+
+  const total = await env.DB.prepare(
+    `SELECT COUNT(*) as cnt FROM posts`
+  ).first<{ cnt: number }>();
+  totalPages = Math.ceil((total?.cnt || 0) / 20);
+}
+
+const districtColors: Record<string, string> = {
+  '昌平区': 'bg-red-100 text-red-700',
+  '海淀区': 'bg-blue-100 text-blue-700',
+};
+const statusLabels: Record<string, string> = {
+  'pending': '等待AI回复',
+  'answered': 'AI已回复',
+  'failed': '回复失败',
+};
+const statusColors: Record<string, string> = {
+  'pending': 'bg-yellow-100 text-yellow-700',
+  'answered': 'bg-green-100 text-green-700',
+  'failed': 'bg-gray-100 text-gray-500',
+};
+---
+
+<BaseLayout title="政策问答社区" description="昌平区、海淀区幼升小政策问答，提问由AI结合官方政策自动回复。">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- 页头 -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-extrabold text-gray-900 mb-1">政策问答社区</h1>
+      <p class="text-gray-500 text-sm">提交问题，AI 结合官方政策自动回复 · 通常几秒内完成</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 发帖表单 -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-4">
+          <h2 class="text-base font-bold text-gray-800 mb-4">提交新问题</h2>
+          <form id="post-form" class="space-y-3">
+            <div>
+              <label class="text-xs font-medium text-gray-600 mb-1 block">所在区域（可选）</label>
+              <select name="district" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#C8102E]">
+                <option value="">不限区域</option>
+                <option value="昌平区">昌平区</option>
+                <option value="海淀区">海淀区</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-600 mb-1 block">问题标题 *</label>
+              <input
+                name="title"
+                type="text"
+                maxlength="100"
+                placeholder="例：非京籍租房需要几个月社保？"
+                class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#C8102E]"
+                required
+              />
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-600 mb-1 block">详细描述 *</label>
+              <textarea
+                name="content"
+                rows="4"
+                maxlength="2000"
+                placeholder="请描述你的具体情况，例如：父母是否有居住证、是租房还是买房、社保情况等..."
+                class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#C8102E] resize-none"
+                required
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              id="submit-btn"
+              class="w-full bg-[#C8102E] text-white text-sm font-bold py-2.5 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              提交问题
+            </button>
+            <p id="form-msg" class="text-xs text-center hidden"></p>
+          </form>
+          <p class="text-xs text-gray-400 mt-3 text-center">每小时最多提交5个问题</p>
+        </div>
+      </div>
+
+      <!-- 帖子列表 -->
+      <div class="lg:col-span-2 space-y-3" id="post-list">
+        {initialPosts.length === 0 ? (
+          <div class="bg-white rounded-xl border border-gray-100 p-10 text-center text-gray-400 text-sm">
+            还没有问题，来提第一个吧！
+          </div>
+        ) : initialPosts.map((p: any) => (
+          <a href={`/forum/${p.id}`}
+             class="block bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all p-4">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <h3 class="text-sm font-semibold text-gray-900 flex-1">{p.title}</h3>
+              <div class="flex gap-1.5 shrink-0">
+                {p.district && (
+                  <span class={`text-xs px-2 py-0.5 rounded-full font-medium ${districtColors[p.district] || 'bg-gray-100 text-gray-600'}`}>
+                    {p.district}
+                  </span>
+                )}
+                <span class={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[p.status]}`}>
+                  {statusLabels[p.status]}
+                </span>
+              </div>
+            </div>
+            {p.reply_preview && (
+              <p class="text-xs text-gray-500 line-clamp-2">
+                AI回复：{p.reply_preview}{p.reply_preview.length >= 120 ? '...' : ''}
+              </p>
+            )}
+            <p class="text-xs text-gray-300 mt-2">
+              {new Date(p.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+            </p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+const form = document.getElementById('post-form') as HTMLFormElement;
+const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+const formMsg = document.getElementById('form-msg') as HTMLParagraphElement;
+
+form?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  submitBtn.textContent = '提交中...';
+  formMsg.className = 'text-xs text-center hidden';
+
+  const data = Object.fromEntries(new FormData(form));
+
+  try {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json() as { success?: boolean; postId?: number; error?: string };
+
+    if (res.ok && json.postId) {
+      formMsg.textContent = '提交成功！正在跳转...';
+      formMsg.className = 'text-xs text-center text-green-600';
+      setTimeout(() => window.location.href = `/forum/${json.postId}`, 800);
+    } else {
+      formMsg.textContent = json.error || '提交失败，请重试';
+      formMsg.className = 'text-xs text-center text-red-600';
+      submitBtn.disabled = false;
+      submitBtn.textContent = '提交问题';
+    }
+  } catch {
+    formMsg.textContent = '网络错误，请重试';
+    formMsg.className = 'text-xs text-center text-red-600';
+    submitBtn.disabled = false;
+    submitBtn.textContent = '提交问题';
+  }
+  formMsg.classList.remove('hidden');
+});
+</script>

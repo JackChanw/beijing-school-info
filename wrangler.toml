@@ -1,0 +1,22 @@
+name = "beijing-school-info"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "beijing-school-info-db"
+database_id = "placeholder-replace-after-create"
+
+[[queues.producers]]
+binding = "AI_QUEUE"
+queue = "ai-reply-queue"
+
+[[queues.consumers]]
+queue = "ai-reply-queue"
+max_batch_size = 1
+max_retries = 2
+
+[vars]
+RELAY_BASE_URL = "https://your-relay-api.com/v1"
+RELAY_MODEL = "claude-sonnet-4-6"

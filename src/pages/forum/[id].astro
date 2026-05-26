@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+export const prerender = false;
+
+const { id } = Astro.params;
+const env = (Astro.locals as any).runtime?.env;
+
+if (!env?.DB) return Astro.redirect('/forum');
+
+const post = await env.DB.prepare(
+  `SELECT id, title, content, district, status, created_at FROM posts WHERE id = ?`
+).bind(Number(id)).first<any>();
+
+if (!post) return Astro.redirect('/forum');
+
+const reply = await env.DB.prepare(
+  `SELECT content, model, used_search, created_at FROM replies WHERE post_id = ? LIMIT 1`
+).bind(Number(id)).first<any>();
+
+const districtColors: Record<string, string> = {
+  '昌平区': 'bg-red-100 text-red-700',
+  '海淀区': 'bg-blue-100 text-blue-700',
+};
+---
+
+<BaseLayout title={post.title} description={`幼升小政策问题：${post.title}`}>
+  <div class="max-w-3xl mx-auto px-4 py-8">
+    <!-- 面包屑 -->
+    <p class="text-sm text-gray-400 mb-5">
+      <a href="/" class="hover:text-[#C8102E]">首页</a>
+      <span class="mx-2">/</span>
+      <a href="/forum" class="hover:text-[#C8102E]">问答社区</a>
+      <span class="mx-2">/</span>
+      <span class="text-gray-600">问题详情</span>
+    </p>
+
+    <!-- 问题 -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
+      <div class="flex flex-wrap gap-2 mb-3">
+        {post.district && (
+          <span class={`text-xs font-medium px-2 py-1 rounded-full ${districtColors[post.district] || 'bg-gray-100 text-gray-600'}`}>
+            {post.district}
+          </span>
+        )}
+        <span class="text-xs text-gray-400">
+          {new Date(post.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+        </span>
+      </div>
+      <h1 class="text-xl font-extrabold text-gray-900 mb-3">{post.title}</h1>
+      <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+    </div>
+
+    <!-- AI 回复 -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6" id="reply-section">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-7 h-7 rounded-full bg-[#C8102E] flex items-center justify-center text-white text-xs font-bold shrink-0">AI</div>
+        <span class="text-sm font-bold text-gray-800">政策助手回复</span>
+        {reply?.used_search && (
+          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">联网搜索</span>
+        )}
+      </div>
+
+      {reply ? (
+        <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed" id="reply-content">
+          <div class="whitespace-pre-wrap text-sm">{reply.content}</div>
+          <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
+            回复时间：{new Date(reply.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+            {reply.model && ` · 模型：${reply.model}`}
+          </p>
+        </div>
+      ) : post.status === 'pending' ? (
+        <div id="pending-state">
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span class="inline-block w-4 h-4 border-2 border-[#C8102E] border-t-transparent rounded-full animate-spin"></span>
+            AI 正在分析政策，请稍候...
+          </div>
+          <p class="text-xs text-gray-400 mt-2">通常需要5—15秒</p>
+        </div>
+      ) : (
+        <p class="text-sm text-gray-400">回复生成失败，请刷新重试</p>
+      )}
+    </div>
+
+    <!-- 返回 -->
+    <div class="mt-6 flex gap-3">
+      <a href="/forum"
+         class="inline-block border border-gray-300 text-gray-600 px-5 py-2 rounded-full text-sm hover:bg-gray-100 transition-colors">
+        ← 返回社区
+      </a>
+    </div>
+  </div>
+</BaseLayout>
+
+{!reply && post.status === 'pending' && (
+  <script define:vars={{ postId: post.id }}>
+    // 轮询等待 AI 回复（每3秒，最多20次）
+    let attempts = 0;
+    const timer = setInterval(async () => {
+      attempts++;
+      if (attempts > 20) { clearInterval(timer); return; }
+
+      try {
+        const res = await fetch(`/api/posts/${postId}`);
+        const data = await res.json();
+
+        if (data.reply) {
+          clearInterval(timer);
+          // 动态更新页面，无需刷新
+          const section = document.getElementById('pending-state');
+          const container = document.getElementById('reply-section');
+          if (section && container) {
+            section.innerHTML = `
+              <div class="whitespace-pre-wrap text-sm text-gray-700">${data.reply.content.replace(/</g, '&lt;')}</div>
+              <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
+                回复时间：${new Date(data.reply.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+                ${data.reply.used_search ? ' · 联网搜索' : ''}
+              </p>
+            `;
+          }
+        }
+      } catch { /* ignore */ }
+    }, 3000);
+  </script>
+)}

@@ -17,5 +17,10 @@
     "astro": "^6.3.7",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "@astrojs/cloudflare": "^13.5.4",
+    "openai": "^6.39.0",
+    "wrangler": "^4.94.0"
   }
 }
