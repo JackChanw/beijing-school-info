@@ -1,10 +1,10 @@
 // GET /api/posts/list — 获取帖子列表（分页）
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url, locals }) => {
-  const env = (locals as any).runtime?.env;
+export const GET: APIRoute = async ({ url }) => {
   if (!env?.DB) return Response.json({ error: '服务暂不可用' }, { status: 503 });
 
   const page = Math.max(1, Number(url.searchParams.get('page') || 1));

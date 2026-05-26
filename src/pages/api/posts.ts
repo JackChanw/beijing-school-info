@@ -1,10 +1,10 @@
 // POST /api/posts — 发布新帖子
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  const env = (locals as any).runtime?.env;
+export const POST: APIRoute = async ({ request }) => {
   if (!env?.DB) {
     return Response.json({ error: '服务暂不可用' }, { status: 503 });
   }

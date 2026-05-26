@@ -1,10 +1,10 @@
 // GET /api/posts/[id] — 获取帖子详情（含 AI 回复）
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, locals }) => {
-  const env = (locals as any).runtime?.env;
+export const GET: APIRoute = async ({ params }) => {
   if (!env?.DB) return Response.json({ error: '服务暂不可用' }, { status: 503 });
 
   const id = Number(params.id);

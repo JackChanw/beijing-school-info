@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { env } from 'cloudflare:workers';
 export const prerender = false;
 
 const { id } = Astro.params;
-const env = (Astro.locals as any).runtime?.env;
 
 if (!env?.DB) return Astro.redirect('/forum');
 
