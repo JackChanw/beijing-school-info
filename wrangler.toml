@@ -6,7 +6,7 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "beijing-school-info-db"
-database_id = "placeholder-replace-after-create"
+database_id = "fb68a2d3-b3a2-4d66-95a6-ec7bab5c7943"
 
 [[queues.producers]]
 binding = "AI_QUEUE"
@@ -18,5 +18,5 @@ max_batch_size = 1
 max_retries = 2
 
 [vars]
-RELAY_BASE_URL = "https://your-relay-api.com/v1"
-RELAY_MODEL = "claude-sonnet-4-6"
+RELAY_BASE_URL = "https://bmc-llm-relay.nextblue.ai/v1"
+RELAY_MODEL = "gpt-5.5"
